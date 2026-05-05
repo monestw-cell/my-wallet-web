@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { getWallet, updateWalletBalance } from "@/utils/wallet";
 import { base44 } from "@/api/base44Client";
-import { Plus, Trash2, CheckCircle, Circle } from "lucide-react";
+import { Plus, Trash2, CheckCircle, Circle, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
@@ -12,6 +12,7 @@ export default function Debts() {
   const [debts, setDebts] = useState([]);
   const [persons, setPersons] = useState([]);
   const [open, setOpen] = useState(false);
+  const [editItem, setEditItem] = useState(null);
   const [filter, setFilter] = useState("الكل");
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
@@ -29,10 +30,16 @@ export default function Debts() {
     setPersons(p);
   };
 
+  const openEdit = (debt) => {
+    setForm({ person_name: debt.person_name, amount: debt.amount, type: debt.type, date: debt.date, description: debt.description || "" });
+    setEditItem(debt);
+    setOpen(true);
+  };
+
   const handleSave = async () => {
     if (!form.person_name || !form.amount) { toast.error("يرجى ملء الحقول المطلوبة"); return; }
     const amt = parseFloat(form.amount);
-    if (form.type === "لي") {
+    if (!editItem && form.type === "لي") {
       const wallet = await getWallet();
       if (wallet.balance < amt) {
         toast.error(`رصيدك المتوفر ${wallet.balance.toLocaleString("ar-SA")} ر.س فقط، لا يمكن إعطاء مبلغ أكبر`);
@@ -41,10 +48,16 @@ export default function Debts() {
       await updateWalletBalance(-amt);
     }
     setLoading(true);
-    await base44.entities.Debt.create({ ...form, amount: amt, is_settled: false });
-    toast.success("تم إضافة الدين");
+    if (editItem) {
+      await base44.entities.Debt.update(editItem.id, { ...form, amount: amt });
+      toast.success("تم تعديل الدين");
+    } else {
+      await base44.entities.Debt.create({ ...form, amount: amt, is_settled: false });
+      toast.success("تم إضافة الدين");
+    }
     setForm({ person_name: "", amount: "", type: "لي", date: today(), description: "" });
     setOpen(false);
+    setEditItem(null);
     setLoading(false);
     loadData();
   };
@@ -130,7 +143,7 @@ export default function Debts() {
             <p>لا توجد ديون مسجلة</p>
           </div>
         ) : filtered.map(debt => (
-          <div key={debt.id} className={`bg-white rounded-xl border p-3 shadow-sm ${debt.is_settled ? "opacity-60 border-border" : debt.type === "لي" ? "border-blue-100" : "border-red-100"}`}>
+          <div key={debt.id} className={`bg-card rounded-xl border p-3 shadow-sm ${debt.is_settled ? "opacity-60 border-border" : debt.type === "لي" ? "border-blue-100 dark:border-blue-900" : "border-red-100 dark:border-red-900"}`}>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className={`w-10 h-10 rounded-full flex items-center justify-center text-lg font-bold ${debt.type === "لي" ? "bg-blue-100 text-blue-600" : "bg-red-100 text-red-600"}`}>
@@ -149,6 +162,9 @@ export default function Debts() {
                   {debt.amount?.toLocaleString("ar-SA")} ر.س
                 </span>
                 <div className="flex gap-2">
+                  <button onClick={() => openEdit(debt)} className="text-muted-foreground hover:text-primary transition-colors">
+                    <Pencil size={15} />
+                  </button>
                   <button onClick={() => toggleSettle(debt)} className="text-muted-foreground hover:text-primary transition-colors">
                     {debt.is_settled ? <CheckCircle size={18} className="text-primary" /> : <Circle size={18} />}
                   </button>
@@ -162,10 +178,10 @@ export default function Debts() {
         ))}
       </div>
 
-      {/* Add Dialog */}
-      <Dialog open={open} onOpenChange={setOpen}>
+      {/* Add/Edit Dialog */}
+      <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) { setEditItem(null); setForm({ person_name: "", amount: "", type: "لي", date: today(), description: "" }); } }}>
         <DialogContent className="max-w-sm mx-auto rounded-2xl" dir="rtl">
-          <DialogHeader><DialogTitle className="text-right">إضافة دين جديد</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle className="text-right">{editItem ? "تعديل الدين" : "إضافة دين جديد"}</DialogTitle></DialogHeader>
           <div className="space-y-3 pt-2">
             <div>
               <label className="text-sm font-medium mb-1 block">اسم الشخص *</label>
@@ -175,7 +191,7 @@ export default function Debts() {
                   placeholder="اكتب أو اختر اسماً"
                   value={form.person_name}
                   onChange={e => setForm(f => ({ ...f, person_name: e.target.value }))}
-                  className="flex-1 border border-border rounded-xl px-3 py-2.5 text-right focus:outline-none focus:ring-2 focus:ring-primary/30"
+                  className="flex-1 border border-border rounded-xl px-3 py-2.5 text-right focus:outline-none focus:ring-2 focus:ring-primary/30 bg-background text-foreground"
                 />
                 <datalist id="persons-list">
                   {persons.map(p => <option key={p.id} value={p.name} />)}
@@ -186,14 +202,14 @@ export default function Debts() {
               <label className="text-sm font-medium mb-1 block">المبلغ *</label>
               <input type="number" placeholder="0.00" value={form.amount}
                 onChange={e => setForm(f => ({ ...f, amount: e.target.value }))}
-                className="w-full border border-border rounded-xl px-3 py-2.5 text-right focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                className="w-full border border-border rounded-xl px-3 py-2.5 text-right focus:outline-none focus:ring-2 focus:ring-primary/30 bg-background text-foreground" />
             </div>
             <div>
               <label className="text-sm font-medium mb-1 block">النوع *</label>
               <div className="grid grid-cols-2 gap-2">
                 {["لي", "عليّ"].map(t => (
                   <button key={t} onClick={() => setForm(f => ({ ...f, type: t }))}
-                    className={`p-2.5 rounded-xl border text-sm font-medium transition-all ${form.type === t ? "border-primary bg-primary/10 text-primary" : "border-border"}`}>
+                    className={`p-2.5 rounded-xl border text-sm font-medium transition-all ${form.type === t ? "border-primary bg-primary/10 text-primary" : "border-border text-foreground"}`}>
                     {t === "لي" ? "🔵 لي" : "🔴 عليّ"}
                   </button>
                 ))}
@@ -202,16 +218,16 @@ export default function Debts() {
             <div>
               <label className="text-sm font-medium mb-1 block">التاريخ</label>
               <input type="date" value={form.date} onChange={e => setForm(f => ({ ...f, date: e.target.value }))}
-                className="w-full border border-border rounded-xl px-3 py-2.5 text-right focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                className="w-full border border-border rounded-xl px-3 py-2.5 text-right focus:outline-none focus:ring-2 focus:ring-primary/30 bg-background text-foreground" />
             </div>
             <div>
               <label className="text-sm font-medium mb-1 block">الوصف</label>
               <input placeholder="وصف اختياري..." value={form.description}
                 onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
-                className="w-full border border-border rounded-xl px-3 py-2.5 text-right focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                className="w-full border border-border rounded-xl px-3 py-2.5 text-right focus:outline-none focus:ring-2 focus:ring-primary/30 bg-background text-foreground" />
             </div>
             <Button onClick={handleSave} disabled={loading} className="w-full rounded-xl bg-primary">
-              {loading ? "جارٍ الحفظ..." : "حفظ"}
+              {loading ? "جارٍ الحفظ..." : editItem ? "حفظ التعديل" : "حفظ"}
             </Button>
           </div>
         </DialogContent>

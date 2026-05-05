@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
-import { Plus, X, ChevronDown, Trash2, User } from "lucide-react";
+import { Plus, X, ChevronDown, Trash2, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
+import { getWallet, updateWalletBalance } from "@/utils/wallet";
 
 const categories = ["طعام وشراب", "مواصلات", "تسوق", "فواتير", "صحة", "ترفيه", "تعليم", "إيجار", "أخرى"];
 const categoryIcons = {
@@ -24,6 +25,7 @@ export default function Expenses() {
   const [expenses, setExpenses] = useState([]);
   const [persons, setPersons] = useState([]);
   const [open, setOpen] = useState(false);
+  const [editItem, setEditItem] = useState(null);
   const [filterCat, setFilterCat] = useState("الكل");
   const [form, setForm] = useState({ amount: "", date: today(), category: "طعام وشراب", notes: "", person_name: "" });
   const [loading, setLoading] = useState(false);
@@ -46,13 +48,34 @@ export default function Expenses() {
       toast.error("يرجى ملء الحقول المطلوبة");
       return;
     }
+    const amt = parseFloat(form.amount);
+    if (!editItem) {
+      const wallet = await getWallet();
+      if (wallet.balance < amt) {
+        toast.error(`رصيدك المتوفر ${wallet.balance.toLocaleString("ar-SA")} ر.س فقط، لا يكفي لتسجيل هذه النفقة`);
+        return;
+      }
+    }
     setLoading(true);
-    await base44.entities.Expense.create({ ...form, amount: parseFloat(form.amount) });
-    toast.success("تم إضافة النفقة");
+    if (editItem) {
+      await base44.entities.Expense.update(editItem.id, { ...form, amount: amt });
+      toast.success("تم تعديل النفقة");
+    } else {
+      await base44.entities.Expense.create({ ...form, amount: amt });
+      await updateWalletBalance(-amt);
+      toast.success("تم إضافة النفقة");
+    }
     setForm({ amount: "", date: today(), category: "طعام وشراب", notes: "", person_name: "" });
     setOpen(false);
+    setEditItem(null);
     setLoading(false);
     loadData();
+  };
+
+  const openEdit = (exp) => {
+    setForm({ amount: exp.amount, date: exp.date, category: exp.category, notes: exp.notes || "", person_name: exp.person_name || "" });
+    setEditItem(exp);
+    setOpen(true);
   };
 
   const handleDelete = async (id) => {
@@ -99,7 +122,7 @@ export default function Expenses() {
             <p>لا توجد نفقات</p>
           </div>
         ) : filtered.map(exp => (
-          <div key={exp.id} className="bg-white rounded-xl border border-border p-3 flex items-center justify-between shadow-sm">
+          <div key={exp.id} className="bg-card rounded-xl border border-border p-3 flex items-center justify-between shadow-sm">
             <div className="flex items-center gap-3">
               <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-lg ${categoryColors[exp.category] || "bg-gray-50"}`}>
                 {categoryIcons[exp.category] || "📌"}
@@ -112,6 +135,9 @@ export default function Expenses() {
             </div>
             <div className="flex items-center gap-2">
               <span className="font-bold text-red-500">{exp.amount?.toLocaleString("ar-SA")} ر.س</span>
+              <button onClick={() => openEdit(exp)} className="text-muted-foreground hover:text-primary transition-colors">
+                <Pencil size={15} />
+              </button>
               <button onClick={() => handleDelete(exp.id)} className="text-muted-foreground hover:text-red-500 transition-colors">
                 <Trash2 size={16} />
               </button>
@@ -120,11 +146,11 @@ export default function Expenses() {
         ))}
       </div>
 
-      {/* Add Dialog */}
-      <Dialog open={open} onOpenChange={setOpen}>
+      {/* Add/Edit Dialog */}
+      <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) { setEditItem(null); setForm({ amount: "", date: today(), category: "طعام وشراب", notes: "", person_name: "" }); } }}>
         <DialogContent className="max-w-sm mx-auto rounded-2xl" dir="rtl">
           <DialogHeader>
-            <DialogTitle className="text-right">إضافة نفقة جديدة</DialogTitle>
+            <DialogTitle className="text-right">{editItem ? "تعديل النفقة" : "إضافة نفقة جديدة"}</DialogTitle>
           </DialogHeader>
           <div className="space-y-3 pt-2">
             <div>
@@ -134,7 +160,7 @@ export default function Expenses() {
                 placeholder="0.00"
                 value={form.amount}
                 onChange={e => setForm(f => ({ ...f, amount: e.target.value }))}
-                className="w-full border border-border rounded-xl px-3 py-2.5 text-right focus:outline-none focus:ring-2 focus:ring-primary/30"
+                className="w-full border border-border rounded-xl px-3 py-2.5 text-right focus:outline-none focus:ring-2 focus:ring-primary/30 bg-background text-foreground"
               />
             </div>
             <div>
@@ -143,7 +169,7 @@ export default function Expenses() {
                 type="date"
                 value={form.date}
                 onChange={e => setForm(f => ({ ...f, date: e.target.value }))}
-                className="w-full border border-border rounded-xl px-3 py-2.5 text-right focus:outline-none focus:ring-2 focus:ring-primary/30"
+                className="w-full border border-border rounded-xl px-3 py-2.5 text-right focus:outline-none focus:ring-2 focus:ring-primary/30 bg-background text-foreground"
               />
             </div>
             <div>
@@ -167,7 +193,7 @@ export default function Expenses() {
               <select
                 value={form.person_name}
                 onChange={e => setForm(f => ({ ...f, person_name: e.target.value }))}
-                className="w-full border border-border rounded-xl px-3 py-2.5 text-right focus:outline-none focus:ring-2 focus:ring-primary/30 bg-white"
+                className="w-full border border-border rounded-xl px-3 py-2.5 text-right focus:outline-none focus:ring-2 focus:ring-primary/30 bg-background text-foreground"
               >
                 <option value="">بدون شخص</option>
                 {persons.map(p => <option key={p.id} value={p.name}>{p.name}</option>)}
@@ -179,12 +205,12 @@ export default function Expenses() {
                 placeholder="ملاحظة اختيارية..."
                 value={form.notes}
                 onChange={e => setForm(f => ({ ...f, notes: e.target.value }))}
-                className="w-full border border-border rounded-xl px-3 py-2.5 text-right focus:outline-none focus:ring-2 focus:ring-primary/30 resize-none"
+                className="w-full border border-border rounded-xl px-3 py-2.5 text-right focus:outline-none focus:ring-2 focus:ring-primary/30 resize-none bg-background text-foreground"
                 rows={2}
               />
             </div>
             <Button onClick={handleSave} disabled={loading} className="w-full rounded-xl bg-primary">
-              {loading ? "جارٍ الحفظ..." : "حفظ النفقة"}
+              {loading ? "جارٍ الحفظ..." : editItem ? "حفظ التعديل" : "حفظ النفقة"}
             </Button>
           </div>
         </DialogContent>

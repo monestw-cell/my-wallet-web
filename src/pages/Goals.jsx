@@ -63,7 +63,7 @@ export default function Goals() {
             const remaining = goal.target_amount - (goal.current_amount || 0);
             const completed = pct >= 100;
             return (
-              <div key={goal.id} className={`bg-white rounded-2xl border shadow-sm p-4 ${completed ? "border-primary/30" : "border-border"}`}>
+              <div key={goal.id} className={`bg-card rounded-2xl border shadow-sm p-4 ${completed ? "border-primary/30" : "border-border"}`}>
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex items-center gap-3">
                     <div className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl" style={{ background: goal.color + "20" }}>

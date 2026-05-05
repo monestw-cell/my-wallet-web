@@ -102,7 +102,7 @@ export default function GoalDetail() {
       </div>
 
       {/* Progress Card */}
-      <div className="bg-white rounded-2xl border border-border p-5 shadow-sm">
+      <div className="bg-card rounded-2xl border border-border p-5 shadow-sm">
         <div className="flex justify-between items-center mb-4">
           <div>
             <p className="text-xs text-muted-foreground">تم توفيره</p>
@@ -140,14 +140,14 @@ export default function GoalDetail() {
         </button>
         <button
           onClick={() => { setTxType("خصم"); setOpen(true); }}
-          className="flex items-center justify-center gap-2 py-3 rounded-xl bg-white border border-border font-medium text-sm text-foreground"
+          className="flex items-center justify-center gap-2 py-3 rounded-xl bg-card border border-border font-medium text-sm text-foreground"
         >
           <MinusCircle size={18} /> خصم مبلغ
         </button>
       </div>
 
       {/* Transactions */}
-      <div className="bg-white rounded-2xl border border-border shadow-sm p-4">
+      <div className="bg-card rounded-2xl border border-border shadow-sm p-4">
         <h2 className="font-semibold text-sm mb-3">سجل المعاملات</h2>
         {transactions.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">
