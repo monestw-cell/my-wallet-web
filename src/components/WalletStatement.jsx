@@ -43,32 +43,34 @@ export default function WalletStatement({ open, onClose, currentBalance, onBalan
 
     const all = [];
     incomesData.forEach(i => all.push({
-      id: "inc_" + i.id, date: i.date, amount: i.amount,
+      id: "inc_" + i.id, date: i.date, created_date: i.created_date, amount: i.amount,
       direction: "in", label: i.source, sub: i.notes || "", type: "دخل",
       icon: "💰", link: "/"
     }));
     expenses.forEach(e => all.push({
-      id: "exp_" + e.id, date: e.date, amount: e.amount,
+      id: "exp_" + e.id, date: e.date, created_date: e.created_date, amount: e.amount,
       direction: "out", label: e.category, sub: e.notes || "", type: "نفقة",
       icon: "🛒", link: "/expenses"
     }));
     allDebts.filter(d => d.type === "لي" && !d.is_settled).forEach(d => all.push({
-      id: "lnt_" + d.id, date: d.date, amount: d.amount,
+      id: "lnt_" + d.id, date: d.date, created_date: d.created_date, amount: d.amount,
       direction: "out", label: `قرض لـ ${d.person_name}`, sub: d.description || "", type: "قرض",
       icon: "🤝", link: "/debts"
     }));
     allDebts.filter(d => d.type === "عليّ" && d.is_settled).forEach(d => all.push({
-      id: "dbt_" + d.id, date: d.date, amount: d.amount,
+      id: "dbt_" + d.id, date: d.date, created_date: d.created_date, amount: d.amount,
       direction: "out", label: `سداد لـ ${d.person_name}`, sub: d.description || "", type: "سداد دين",
       icon: "✅", link: "/debts"
     }));
     goalTxs.filter(t => t.type === "إضافة").forEach(t => all.push({
+      id: "gol_" + t.id, date: t.date, created_date: t.created_date, amount: t.amount,
+
       id: "gol_" + t.id, date: t.date, amount: t.amount,
       direction: "out", label: `هدف: ${t.goal_title}`, sub: t.notes || "", type: "هدف",
       icon: "🎯", link: "/goals"
     }));
 
-    all.sort((a, b) => b.date.localeCompare(a.date));
+    all.sort((a, b) => (b.created_date || b.date).localeCompare(a.created_date || a.date));
     setTransactions(all);
     setLoading(false);
   };

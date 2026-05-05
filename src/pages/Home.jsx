@@ -237,18 +237,24 @@ export default function Home() {
               <label className="text-sm font-medium mb-1 block">المصدر *</label>
               {sources.length > 0 ? (
                 <div className="grid grid-cols-2 gap-2">
-                  {sources.map(src => (
-                    <div key={src.id} className="relative">
-                      <button onClick={() => setIncomeForm(f => ({ ...f, source: src.name }))}
-                        className={`w-full p-2.5 rounded-xl border text-sm font-medium transition-all text-right flex items-center gap-2 ${incomeForm.source === src.name ? "border-primary bg-primary/10 text-primary" : "border-border text-foreground bg-background"}`}>
-                        <span>{src.icon}</span> {src.name}
-                      </button>
-                      <button onClick={() => { setAddMoneyOpen(false); navigate(`/income-source/${encodeURIComponent(src.name)}`); }}
-                        className="absolute left-1 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary transition-colors p-1">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-                      </button>
-                    </div>
-                  ))}
+                  {sources.map(src => {
+                    const srcTotal = incomes.filter(i => i.source === src.name).reduce((s, i) => s + (i.amount || 0), 0);
+                    return (
+                      <div key={src.id} className="relative">
+                        <button onClick={() => setIncomeForm(f => ({ ...f, source: src.name }))}
+                          className={`w-full p-2.5 rounded-xl border text-sm font-medium transition-all text-right flex flex-col gap-0.5 ${
+                            incomeForm.source === src.name ? "border-primary bg-primary/10 text-primary" : "border-border text-foreground bg-background"
+                          }`}>
+                          <span className="flex items-center gap-1.5">{src.icon} {src.name}</span>
+                          {srcTotal > 0 && <span className="text-[10px] text-green-600 font-semibold">+{srcTotal.toLocaleString("en-US")} {cur}</span>}
+                        </button>
+                        <button onClick={() => { setAddMoneyOpen(false); navigate(`/income-source/${encodeURIComponent(src.name)}`); }}
+                          className="absolute left-1 top-1.5 text-muted-foreground hover:text-primary transition-colors p-1">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                        </button>
+                      </div>
+                    );
+                  })}
                 </div>
               ) : (
                 <input placeholder="مثال: راتب، محل..." value={incomeForm.source}
