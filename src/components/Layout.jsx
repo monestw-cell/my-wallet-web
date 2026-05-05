@@ -1,4 +1,5 @@
 import { Outlet, Link, useLocation } from "react-router-dom";
+import { useDarkMode } from "@/hooks/useDarkMode";
 import { Home, TrendingDown, Users, BarChart2, Target, Settings, UserCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -14,6 +15,7 @@ const navItems = [
 
 export default function Layout() {
   const location = useLocation();
+  useDarkMode(); // initialize dark mode at app level
 
   return (
     <div className="min-h-screen bg-background flex flex-col max-w-md mx-auto relative">
