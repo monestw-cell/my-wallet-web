@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { Plus, Trash2, PlusCircle, MinusCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -9,12 +10,9 @@ const ICONS = ["🎯", "🏠", "✈️", "🚗", "💍", "📱", "💻", "🎓",
 const COLORS = ["#10b981", "#3b82f6", "#f59e0b", "#a855f7", "#ef4444", "#ec4899", "#06b6d4", "#84cc16"];
 
 export default function Goals() {
+  const navigate = useNavigate();
   const [goals, setGoals] = useState([]);
   const [open, setOpen] = useState(false);
-  const [addOpen, setAddOpen] = useState(false);
-  const [selectedGoal, setSelectedGoal] = useState(null);
-  const [addAmount, setAddAmount] = useState("");
-  const [addType, setAddType] = useState("add");
   const [form, setForm] = useState({ title: "", target_amount: "", current_amount: "", deadline: "", icon: "🎯", color: "#10b981" });
   const [loading, setLoading] = useState(false);
 
@@ -35,16 +33,7 @@ export default function Goals() {
     base44.entities.Goal.list("-created_date", 50).then(setGoals);
   };
 
-  const handleUpdateAmount = async () => {
-    if (!addAmount || isNaN(addAmount)) { toast.error("أدخل مبلغاً صحيحاً"); return; }
-    const delta = parseFloat(addAmount) * (addType === "add" ? 1 : -1);
-    const newAmount = Math.max(0, (selectedGoal.current_amount || 0) + delta);
-    await base44.entities.Goal.update(selectedGoal.id, { current_amount: newAmount });
-    setGoals(prev => prev.map(g => g.id === selectedGoal.id ? { ...g, current_amount: newAmount } : g));
-    toast.success("تم تحديث المبلغ");
-    setAddOpen(false);
-    setAddAmount("");
-  };
+
 
   const handleDelete = async (id) => {
     await base44.entities.Goal.delete(id);
@@ -107,13 +96,9 @@ export default function Goals() {
                 </div>
 
                 <div className="flex gap-2">
-                  <button onClick={() => { setSelectedGoal(goal); setAddType("add"); setAddOpen(true); }}
+                  <button onClick={() => navigate(`/goals/${goal.id}`)}
                     className="flex-1 flex items-center justify-center gap-1.5 text-sm text-primary border border-primary/30 rounded-xl py-2 hover:bg-primary/5 transition-colors">
-                    <PlusCircle size={16} /> إضافة
-                  </button>
-                  <button onClick={() => { setSelectedGoal(goal); setAddType("subtract"); setAddOpen(true); }}
-                    className="flex-1 flex items-center justify-center gap-1.5 text-sm text-muted-foreground border border-border rounded-xl py-2 hover:bg-secondary transition-colors">
-                    <MinusCircle size={16} /> خصم
+                    <PlusCircle size={16} /> إدارة الهدف
                   </button>
                 </div>
               </div>
@@ -181,21 +166,6 @@ export default function Goals() {
         </DialogContent>
       </Dialog>
 
-      {/* Update Amount Dialog */}
-      <Dialog open={addOpen} onOpenChange={setAddOpen}>
-        <DialogContent className="max-w-sm mx-auto rounded-2xl" dir="rtl">
-          <DialogHeader>
-            <DialogTitle className="text-right">{addType === "add" ? "إضافة مبلغ" : "خصم مبلغ"}</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-3 pt-2">
-            <p className="text-sm text-muted-foreground">الهدف: <span className="font-semibold text-foreground">{selectedGoal?.title}</span></p>
-            <input type="number" placeholder="0.00" value={addAmount}
-              onChange={e => setAddAmount(e.target.value)}
-              className="w-full border border-border rounded-xl px-3 py-2.5 text-right focus:outline-none focus:ring-2 focus:ring-primary/30" />
-            <Button onClick={handleUpdateAmount} className="w-full rounded-xl bg-primary">تأكيد</Button>
-          </div>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }

@@ -11,6 +11,7 @@ import Expenses from './pages/Expenses';
 import Debts from './pages/Debts';
 import Reports from './pages/Reports';
 import Goals from './pages/Goals';
+import GoalDetail from './pages/GoalDetail';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -44,6 +45,7 @@ const AuthenticatedApp = () => {
         <Route path="/debts" element={<Debts />} />
         <Route path="/reports" element={<Reports />} />
         <Route path="/goals" element={<Goals />} />
+        <Route path="/goals/:goalId" element={<GoalDetail />} />
       </Route>
       <Route path="*" element={<PageNotFound />} />
     </Routes>
