@@ -81,7 +81,9 @@ export default function Expenses() {
   };
 
   const handleDelete = async (id) => {
+    const exp = expenses.find(e => e.id === id);
     await base44.entities.Expense.delete(id);
+    if (exp) await updateWalletBalance(exp.amount);
     setExpenses(prev => prev.filter(e => e.id !== id));
     toast.success("تم الحذف");
   };

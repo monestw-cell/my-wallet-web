@@ -18,10 +18,14 @@ export default function Home() {
   const [goals, setGoals] = useState([]);
   const [wallet, setWalletData] = useState(null);
   const [sources, setSources] = useState([]);
+  const [incomes, setIncomes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [addMoneyOpen, setAddMoneyOpen] = useState(false);
+  const [addMoneyTab, setAddMoneyTab] = useState("add");
   const [statementOpen, setStatementOpen] = useState(false);
   const [incomeForm, setIncomeForm] = useState({ amount: "", source: "", date: today(), notes: "" });
+  const [editIncome, setEditIncome] = useState(null);
+  const [editIncomeAmount, setEditIncomeAmount] = useState("");
   const [saving, setSaving] = useState(false);
   const { symbol: cur } = getCurrency();
 
@@ -30,18 +34,20 @@ export default function Home() {
   }, []);
 
   const loadData = async () => {
-    const [e, d, g, w, s] = await Promise.all([
+    const [e, d, g, w, s, inc] = await Promise.all([
       base44.entities.Expense.list("-date", 100),
       base44.entities.Debt.list("-date", 100),
       base44.entities.Goal.list("-created_date", 10),
       getWallet(),
       base44.entities.IncomeSource.list("name", 100),
+      base44.entities.Income.list("-date", 50),
     ]);
     setExpenses(e);
     setDebts(d);
     setGoals(g);
     setWalletData(w);
     setSources(s);
+    setIncomes(inc);
     setLoading(false);
   };
 
@@ -57,6 +63,21 @@ export default function Home() {
     setIncomeForm({ amount: "", source: "", date: today(), notes: "" });
     setAddMoneyOpen(false);
     setSaving(false);
+    loadData();
+  };
+
+  const handleUpdateIncome = async () => {
+    if (!editIncomeAmount || isNaN(editIncomeAmount)) return;
+    const oldAmt = editIncome.amount;
+    const newAmt = parseFloat(editIncomeAmount);
+    const diff = newAmt - oldAmt;
+    await Promise.all([
+      base44.entities.Income.update(editIncome.id, { amount: newAmt }),
+      updateWalletBalance(diff),
+    ]);
+    toast.success("تم تعديل المبلغ");
+    setEditIncome(null);
+    setEditIncomeAmount("");
     loadData();
   };
 
@@ -185,10 +206,17 @@ export default function Home() {
       </div>
 
       {/* Add Money Dialog */}
-      <Dialog open={addMoneyOpen} onOpenChange={setAddMoneyOpen}>
+      <Dialog open={addMoneyOpen} onOpenChange={(v) => { setAddMoneyOpen(v); if (!v) { setEditIncome(null); setAddMoneyTab("add"); } }}>
         <DialogContent className="max-w-sm mx-auto rounded-2xl" dir="rtl">
-          <DialogHeader><DialogTitle className="text-right">إضافة أموال للمحفظة</DialogTitle></DialogHeader>
-          <div className="space-y-3 pt-2">
+          <DialogHeader><DialogTitle className="text-right">إدارة الإيرادات</DialogTitle></DialogHeader>
+          {/* Tabs */}
+          <div className="flex gap-2">
+            <button onClick={() => setAddMoneyTab("add")} className={`flex-1 py-2 rounded-xl text-sm font-medium transition-all ${addMoneyTab === "add" ? "bg-primary text-white" : "bg-secondary text-foreground"}`}>إضافة جديد</button>
+            <button onClick={() => setAddMoneyTab("history")} className={`flex-1 py-2 rounded-xl text-sm font-medium transition-all ${addMoneyTab === "history" ? "bg-primary text-white" : "bg-secondary text-foreground"}`}>السجل والتعديل</button>
+          </div>
+
+          {addMoneyTab === "add" && (
+          <div className="space-y-3 pt-1">
             <div>
               <label className="text-sm font-medium mb-1 block">المبلغ *</label>
               <input type="number" placeholder="0.00" value={incomeForm.amount}
@@ -198,11 +226,11 @@ export default function Home() {
             <div>
               <label className="text-sm font-medium mb-1 block">المصدر *</label>
               {sources.length > 0 ? (
-                <div className="grid grid-cols-3 gap-2">
+                <div className="grid grid-cols-2 gap-2">
                   {sources.map(src => (
                     <button key={src.id} onClick={() => setIncomeForm(f => ({ ...f, source: src.name }))}
-                      className={`p-2 rounded-xl border text-xs font-medium transition-all ${incomeForm.source === src.name ? "border-primary bg-primary/10 text-primary" : "border-border text-foreground bg-background"}`}>
-                      {src.icon} {src.name}
+                      className={`p-2.5 rounded-xl border text-sm font-medium transition-all text-right flex items-center gap-2 ${incomeForm.source === src.name ? "border-primary bg-primary/10 text-primary" : "border-border text-foreground bg-background"}`}>
+                      <span>{src.icon}</span> {src.name}
                     </button>
                   ))}
                 </div>
@@ -228,6 +256,45 @@ export default function Home() {
               {saving ? "جارٍ الحفظ..." : "إضافة للمحفظة"}
             </Button>
           </div>
+          )}
+
+          {addMoneyTab === "history" && (
+          <div className="space-y-2 max-h-72 overflow-y-auto">
+            {incomes.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                <p className="text-3xl mb-2">💰</p>
+                <p className="text-sm">لا توجد إيرادات مسجلة</p>
+              </div>
+            ) : incomes.map(inc => (
+              <div key={inc.id} className="bg-secondary rounded-xl p-3 flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium">{inc.source}</p>
+                  <p className="text-xs text-muted-foreground">{inc.date}{inc.notes ? ` · ${inc.notes}` : ""}</p>
+                </div>
+                <div className="flex items-center gap-2">
+                  {editIncome?.id === inc.id ? (
+                    <div className="flex items-center gap-1">
+                      <input type="number" value={editIncomeAmount}
+                        onChange={e => setEditIncomeAmount(e.target.value)}
+                        className="w-20 border border-border rounded-lg px-2 py-1 text-right text-sm bg-background focus:outline-none"
+                        autoFocus />
+                      <button onClick={handleUpdateIncome} className="text-xs bg-primary text-white px-2 py-1 rounded-lg">حفظ</button>
+                      <button onClick={() => setEditIncome(null)} className="text-xs text-muted-foreground px-1">✕</button>
+                    </div>
+                  ) : (
+                    <>
+                      <span className="text-sm font-bold text-green-600">+{inc.amount?.toLocaleString("ar-SA")} {cur}</span>
+                      <button onClick={() => { setEditIncome(inc); setEditIncomeAmount(inc.amount); }}
+                        className="text-muted-foreground hover:text-primary transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                      </button>
+                    </>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+          )}
         </DialogContent>
       </Dialog>
 
