@@ -8,7 +8,7 @@ export async function getWallet() {
 
 export async function updateWalletBalance(delta) {
   const wallet = await getWallet();
-  const newBalance = Math.max(0, (wallet.balance || 0) + delta);
+  const newBalance = (wallet.balance || 0) + delta;
   await base44.entities.Wallet.update(wallet.id, { balance: newBalance });
   return newBalance;
 }
