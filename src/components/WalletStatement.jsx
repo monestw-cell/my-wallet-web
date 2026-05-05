@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { TrendingUp, TrendingDown, ArrowUpCircle, ArrowDownCircle } from "lucide-react";
 
 export default function WalletStatement({ open, onClose, currentBalance }) {
+  const navigate = useNavigate();
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(false);
   const [filter, setFilter] = useState("الكل");
@@ -14,41 +16,44 @@ export default function WalletStatement({ open, onClose, currentBalance }) {
     Promise.all([
       base44.entities.Income.list("-date", 200),
       base44.entities.Expense.list("-date", 200),
-      base44.entities.Debt.filter({ is_settled: true }, "-date", 100),
-      base44.entities.Debt.filter({ type: "لي" }, "-date", 100),
+      base44.entities.Debt.list("-date", 300),
       base44.entities.GoalTransaction.list("-date", 100),
-    ]).then(([incomes, expenses, settledDebts, lentDebts, goalTxs]) => {
+    ]).then(([incomes, expenses, allDebts, goalTxs]) => {
       const all = [];
 
       incomes.forEach(i => all.push({
         id: "inc_" + i.id, date: i.date, amount: i.amount,
         direction: "in", label: i.source, sub: i.notes || "", type: "دخل",
-        icon: "💰"
+        icon: "💰", link: "/"
       }));
 
       expenses.forEach(e => all.push({
         id: "exp_" + e.id, date: e.date, amount: e.amount,
         direction: "out", label: e.category, sub: e.notes || "", type: "نفقة",
-        icon: "🛒"
+        icon: "🛒", link: "/expenses"
       }));
 
-      settledDebts.filter(d => d.type === "عليّ").forEach(d => all.push({
-        id: "dbt_" + d.id, date: d.date, amount: d.amount,
-        direction: "out", label: `سداد لـ ${d.person_name}`, sub: d.description || "", type: "سداد دين",
-        icon: "✅"
-      }));
-
-      lentDebts.forEach(d => all.push({
+      // ديون أُعطيت (لي = أنت أعطيت شخصاً مالاً)
+      allDebts.filter(d => d.type === "لي" && !d.is_settled).forEach(d => all.push({
         id: "lnt_" + d.id, date: d.date, amount: d.amount,
         direction: "out", label: `قرض لـ ${d.person_name}`, sub: d.description || "", type: "قرض",
-        icon: "🤝"
+        icon: "🤝", link: "/debts"
+      }));
+
+      // ديون عليك تم سدادها
+      allDebts.filter(d => d.type === "عليّ" && d.is_settled).forEach(d => all.push({
+        id: "dbt_" + d.id, date: d.date, amount: d.amount,
+        direction: "out", label: `سداد لـ ${d.person_name}`, sub: d.description || "", type: "سداد دين",
+        icon: "✅", link: "/debts"
       }));
 
       goalTxs.filter(t => t.type === "إضافة").forEach(t => all.push({
         id: "gol_" + t.id, date: t.date, amount: t.amount,
         direction: "out", label: `هدف: ${t.goal_title}`, sub: t.notes || "", type: "هدف",
-        icon: "🎯"
+        icon: "🎯", link: "/goals"
       }));
+
+
 
       all.sort((a, b) => b.date.localeCompare(a.date));
       setTransactions(all);
@@ -107,7 +112,10 @@ export default function WalletStatement({ open, onClose, currentBalance }) {
               <p className="text-sm">لا توجد حركات</p>
             </div>
           ) : filtered.map(tx => (
-            <div key={tx.id} className="flex items-center justify-between py-2 border-b border-border last:border-0">
+            <div key={tx.id}
+              className="flex items-center justify-between py-2 border-b border-border last:border-0 cursor-pointer hover:bg-secondary/50 rounded-lg px-1 transition-colors"
+              onClick={() => { if (tx.link) { onClose(); navigate(tx.link); } }}
+            >
               <div className="flex items-center gap-2.5">
                 <div className={`w-9 h-9 rounded-xl flex items-center justify-center text-base ${tx.direction === "in" ? "bg-green-50 dark:bg-green-900/20" : "bg-red-50 dark:bg-red-900/20"}`}>
                   {tx.icon}

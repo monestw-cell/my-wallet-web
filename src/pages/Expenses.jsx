@@ -106,7 +106,7 @@ export default function Expenses() {
             key={cat}
             onClick={() => setFilterCat(cat)}
             className={`whitespace-nowrap px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
-              filterCat === cat ? "bg-primary text-white" : "bg-white border border-border text-foreground"
+              filterCat === cat ? "bg-primary text-white" : "bg-secondary border border-border text-foreground"
             }`}
           >
             {cat !== "الكل" ? categoryIcons[cat] + " " : ""}{cat}
