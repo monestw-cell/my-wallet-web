@@ -7,6 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { getWallet, updateWalletBalance } from "@/utils/wallet";
+import WalletStatement from "@/components/WalletStatement";
 
 const today = () => new Date().toISOString().slice(0, 10);
 
@@ -18,6 +19,7 @@ export default function Home() {
   const [sources, setSources] = useState([]);
   const [loading, setLoading] = useState(true);
   const [addMoneyOpen, setAddMoneyOpen] = useState(false);
+  const [statementOpen, setStatementOpen] = useState(false);
   const [incomeForm, setIncomeForm] = useState({ amount: "", source: "", date: today(), notes: "" });
   const [saving, setSaving] = useState(false);
 
@@ -81,14 +83,18 @@ export default function Home() {
       </div>
 
       {/* Wallet Balance */}
-      <div className="bg-gradient-to-br from-primary to-emerald-400 rounded-2xl p-5 text-white shadow-lg shadow-primary/20">
+      <div
+        className="bg-gradient-to-br from-primary to-emerald-400 rounded-2xl p-5 text-white shadow-lg shadow-primary/20 cursor-pointer"
+        onClick={() => setStatementOpen(true)}
+      >
         <div className="flex items-center justify-between">
           <div>
             <p className="text-white/80 text-sm font-medium flex items-center gap-1"><Wallet size={14} /> رصيدك المتوفر</p>
             <p className="text-4xl font-bold mt-1">{(wallet?.balance || 0).toLocaleString("ar-SA")} <span className="text-xl">ر.س</span></p>
             <p className="text-white/70 text-xs mt-1">نفقات الشهر: {totalMonth.toLocaleString("ar-SA")} ر.س</p>
+            <p className="text-white/60 text-[11px] mt-0.5">اضغط لعرض كشف الحساب 👆</p>
           </div>
-          <button onClick={() => setAddMoneyOpen(true)} className="bg-white/20 hover:bg-white/30 transition-colors rounded-xl p-3">
+          <button onClick={e => { e.stopPropagation(); setAddMoneyOpen(true); }} className="bg-white/20 hover:bg-white/30 transition-colors rounded-xl p-3">
             <PlusCircle size={22} />
           </button>
         </div>
@@ -222,6 +228,8 @@ export default function Home() {
           </div>
         </DialogContent>
       </Dialog>
+
+      <WalletStatement open={statementOpen} onClose={() => setStatementOpen(false)} currentBalance={wallet?.balance || 0} />
     </div>
   );
 }

@@ -62,13 +62,18 @@
     --input: 222 47% 18%;
     --ring: 161 94% 30%;
   }
-}
 
-
-
-@layer base {
   * {
     @apply border-border outline-ring/50;
+  }
+
+  input, textarea, select {
+    @apply bg-background text-foreground;
+    color-scheme: light dark;
+  }
+
+  .dark input, .dark textarea, .dark select {
+    color-scheme: dark;
   }
 
   body {

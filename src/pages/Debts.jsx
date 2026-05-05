@@ -31,8 +31,17 @@ export default function Debts() {
 
   const handleSave = async () => {
     if (!form.person_name || !form.amount) { toast.error("يرجى ملء الحقول المطلوبة"); return; }
+    const amt = parseFloat(form.amount);
+    if (form.type === "لي") {
+      const wallet = await getWallet();
+      if (wallet.balance < amt) {
+        toast.error(`رصيدك المتوفر ${wallet.balance.toLocaleString("ar-SA")} ر.س فقط، لا يمكن إعطاء مبلغ أكبر`);
+        return;
+      }
+      await updateWalletBalance(-amt);
+    }
     setLoading(true);
-    await base44.entities.Debt.create({ ...form, amount: parseFloat(form.amount), is_settled: false });
+    await base44.entities.Debt.create({ ...form, amount: amt, is_settled: false });
     toast.success("تم إضافة الدين");
     setForm({ person_name: "", amount: "", type: "لي", date: today(), description: "" });
     setOpen(false);
