@@ -1,5 +1,5 @@
 import { Outlet, Link, useLocation } from "react-router-dom";
-import { Home, TrendingDown, Users, BarChart2, Target } from "lucide-react";
+import { Home, TrendingDown, Users, BarChart2, Target, Settings, UserCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navItems = [
@@ -8,6 +8,8 @@ const navItems = [
   { path: "/debts", icon: Users, label: "الديون" },
   { path: "/reports", icon: BarChart2, label: "التقارير" },
   { path: "/goals", icon: Target, label: "الأهداف" },
+  { path: "/persons", icon: UserCheck, label: "الأشخاص" },
+  { path: "/settings", icon: Settings, label: "الإعدادات" },
 ];
 
 export default function Layout() {
@@ -18,7 +20,7 @@ export default function Layout() {
       <main className="flex-1 overflow-y-auto pb-24">
         <Outlet />
       </main>
-      <nav className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md bg-white border-t border-border z-50 shadow-lg">
+      <nav className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md bg-card border-t border-border z-50 shadow-lg">
         <div className="flex items-center justify-around py-2">
           {navItems.map(({ path, icon: Icon, label }) => {
             const active = location.pathname === path;

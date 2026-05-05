@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { getWallet, updateWalletBalance } from "@/utils/wallet";
 import { base44 } from "@/api/base44Client";
 import { Plus, Trash2, CheckCircle, Circle } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -40,6 +41,14 @@ export default function Debts() {
   };
 
   const toggleSettle = async (debt) => {
+    if (!debt.is_settled && debt.type === "عليّ") {
+      const wallet = await getWallet();
+      if (wallet.balance < debt.amount) {
+        toast.error(`رصيدك المتوفر ${wallet.balance.toLocaleString("ar-SA")} ر.س فقط، لا يكفي لسداد هذا الدين`);
+        return;
+      }
+      await updateWalletBalance(-debt.amount);
+    }
     await base44.entities.Debt.update(debt.id, { is_settled: !debt.is_settled });
     setDebts(prev => prev.map(d => d.id === debt.id ? { ...d, is_settled: !d.is_settled } : d));
     toast.success(debt.is_settled ? "تم إعادة الفتح" : "تم تسجيل السداد");

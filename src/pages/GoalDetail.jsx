@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { ArrowRight, Plus, PlusCircle, MinusCircle, Trash2 } from "lucide-react";
+import { getWallet, updateWalletBalance } from "@/utils/wallet";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
@@ -33,8 +34,17 @@ export default function GoalDetail() {
 
   const handleAddPayment = async () => {
     if (!form.amount || isNaN(form.amount)) { toast.error("أدخل مبلغاً صحيحاً"); return; }
+    const amt = parseFloat(form.amount);
+    if (txType === "إضافة") {
+      const wallet = await getWallet();
+      if (wallet.balance < amt) {
+        toast.error(`رصيدك المتوفر ${wallet.balance.toLocaleString("ar-SA")} ر.س فقط`);
+        return;
+      }
+    }
     setLoading(true);
-    const delta = parseFloat(form.amount) * (txType === "إضافة" ? 1 : -1);
+    const delta = amt * (txType === "إضافة" ? 1 : -1);
+    if (txType === "إضافة") await updateWalletBalance(-amt);
     const newAmount = Math.max(0, (goal.current_amount || 0) + delta);
 
     await Promise.all([
