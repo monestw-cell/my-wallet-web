@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
-import { TrendingDown, Users, Target, Plus, ArrowLeftCircle, Wallet, PlusCircle } from "lucide-react";
+import { TrendingDown, Users, Target, Plus, ArrowLeftCircle, Wallet, PlusCircle, Trash2, Pencil } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { format, startOfMonth, endOfMonth } from "date-fns";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -28,6 +29,7 @@ export default function Home() {
   const [editIncomeAmount, setEditIncomeAmount] = useState("");
   const [saving, setSaving] = useState(false);
   const { symbol: cur } = getCurrency();
+  const navigate = useNavigate();
 
   useEffect(() => {
     loadData();
@@ -81,6 +83,14 @@ export default function Home() {
     loadData();
   };
 
+  const handleDeleteIncome = async (inc) => {
+    await base44.entities.Income.delete(inc.id);
+    await updateWalletBalance(-inc.amount);
+    setIncomes(prev => prev.filter(i => i.id !== inc.id));
+    toast.success("تم الحذف وإعادة المبلغ للمحفظة");
+    loadData();
+  };
+
   const now = new Date();
   const monthStart = startOfMonth(now);
   const monthEnd = endOfMonth(now);
@@ -113,8 +123,8 @@ export default function Home() {
         <div className="flex items-center justify-between">
           <div>
             <p className="text-white/80 text-sm font-medium flex items-center gap-1"><Wallet size={14} /> رصيدك المتوفر</p>
-            <p className="text-4xl font-bold mt-1">{(wallet?.balance || 0).toLocaleString("ar-SA")} <span className="text-xl">{cur}</span></p>
-            <p className="text-white/70 text-xs mt-1">نفقات الشهر: {totalMonth.toLocaleString("ar-SA")} {cur}</p>
+            <p className="text-4xl font-bold mt-1">{(wallet?.balance || 0).toLocaleString("en-US")} <span className="text-xl">{cur}</span></p>
+            <p className="text-white/70 text-xs mt-1">نفقات الشهر: {totalMonth.toLocaleString("en-US")} {cur}</p>
             <p className="text-white/60 text-[11px] mt-0.5">اضغط لعرض كشف الحساب 👆</p>
           </div>
           <button onClick={e => { e.stopPropagation(); setAddMoneyOpen(true); }} className="bg-white/20 hover:bg-white/30 transition-colors rounded-xl p-3">
@@ -130,7 +140,7 @@ export default function Home() {
             <div className="bg-blue-50 p-1.5 rounded-lg"><Users size={16} className="text-blue-500" /></div>
             <span className="text-xs text-muted-foreground">مستحق لي</span>
           </div>
-          <p className="text-xl font-bold text-blue-600">{owedToMe.toLocaleString("ar-SA")}</p>
+          <p className="text-xl font-bold text-blue-600">{owedToMe.toLocaleString("en-US")}</p>
           <p className="text-xs text-muted-foreground">{cur}</p>
         </div>
         <div className="bg-card rounded-xl p-4 border border-border shadow-sm">
@@ -138,7 +148,7 @@ export default function Home() {
             <div className="bg-red-50 p-1.5 rounded-lg"><Users size={16} className="text-red-500" /></div>
             <span className="text-xs text-muted-foreground">مستحق عليّ</span>
           </div>
-          <p className="text-xl font-bold text-red-500">{iOwe.toLocaleString("ar-SA")}</p>
+          <p className="text-xl font-bold text-red-500">{iOwe.toLocaleString("en-US")}</p>
           <p className="text-xs text-muted-foreground">{cur}</p>
         </div>
       </div>
@@ -188,7 +198,7 @@ export default function Home() {
                     <p className="text-xs text-muted-foreground">{exp.date}</p>
                   </div>
                 </div>
-                <span className="font-semibold text-sm text-red-500">-{exp.amount?.toLocaleString("ar-SA")} {cur}</span>
+                <span className="font-semibold text-sm text-red-500">-{exp.amount?.toLocaleString("en-US")} {cur}</span>
               </div>
             ))}
           </div>
@@ -228,10 +238,16 @@ export default function Home() {
               {sources.length > 0 ? (
                 <div className="grid grid-cols-2 gap-2">
                   {sources.map(src => (
-                    <button key={src.id} onClick={() => setIncomeForm(f => ({ ...f, source: src.name }))}
-                      className={`p-2.5 rounded-xl border text-sm font-medium transition-all text-right flex items-center gap-2 ${incomeForm.source === src.name ? "border-primary bg-primary/10 text-primary" : "border-border text-foreground bg-background"}`}>
-                      <span>{src.icon}</span> {src.name}
-                    </button>
+                    <div key={src.id} className="relative">
+                      <button onClick={() => setIncomeForm(f => ({ ...f, source: src.name }))}
+                        className={`w-full p-2.5 rounded-xl border text-sm font-medium transition-all text-right flex items-center gap-2 ${incomeForm.source === src.name ? "border-primary bg-primary/10 text-primary" : "border-border text-foreground bg-background"}`}>
+                        <span>{src.icon}</span> {src.name}
+                      </button>
+                      <button onClick={() => { setAddMoneyOpen(false); navigate(`/income-source/${encodeURIComponent(src.name)}`); }}
+                        className="absolute left-1 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary transition-colors p-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                      </button>
+                    </div>
                   ))}
                 </div>
               ) : (
@@ -283,10 +299,13 @@ export default function Home() {
                     </div>
                   ) : (
                     <>
-                      <span className="text-sm font-bold text-green-600">+{inc.amount?.toLocaleString("ar-SA")} {cur}</span>
+                      <span className="text-sm font-bold text-green-600">+{inc.amount?.toLocaleString("en-US")} {cur}</span>
                       <button onClick={() => { setEditIncome(inc); setEditIncomeAmount(inc.amount); }}
                         className="text-muted-foreground hover:text-primary transition-colors">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                        <Pencil size={14} />
+                      </button>
+                      <button onClick={() => handleDeleteIncome(inc)} className="text-muted-foreground hover:text-red-500 transition-colors">
+                        <Trash2 size={14} />
                       </button>
                     </>
                   )}

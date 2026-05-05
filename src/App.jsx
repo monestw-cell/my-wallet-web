@@ -15,6 +15,7 @@ import GoalDetail from './pages/GoalDetail';
 import Persons from './pages/Persons';
 import PersonDetail from './pages/PersonDetail';
 import Settings from './pages/Settings';
+import IncomeSourceDetail from './pages/IncomeSourceDetail';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -52,6 +53,7 @@ const AuthenticatedApp = () => {
         <Route path="/persons" element={<Persons />} />
         <Route path="/persons/:personId" element={<PersonDetail />} />
         <Route path="/settings" element={<Settings />} />
+        <Route path="/income-source/:sourceName" element={<IncomeSourceDetail />} />
       </Route>
       <Route path="*" element={<PageNotFound />} />
     </Routes>
