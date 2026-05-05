@@ -3,9 +3,11 @@ import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { TrendingUp, TrendingDown, ArrowUpCircle, ArrowDownCircle } from "lucide-react";
+import { getCurrency } from "@/utils/currency";
 
 export default function WalletStatement({ open, onClose, currentBalance }) {
   const navigate = useNavigate();
+  const { symbol: cur } = getCurrency();
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(false);
   const [filter, setFilter] = useState("الكل");
@@ -81,15 +83,15 @@ export default function WalletStatement({ open, onClose, currentBalance }) {
         <div className="bg-gradient-to-l from-primary/10 to-emerald-50 dark:from-primary/20 dark:to-transparent rounded-xl p-4 space-y-2">
           <div className="flex justify-between text-sm">
             <span className="text-muted-foreground">الرصيد الحالي</span>
-            <span className="font-bold text-primary">{(currentBalance || 0).toLocaleString("ar-SA")} ر.س</span>
+            <span className="font-bold text-primary">{(currentBalance || 0).toLocaleString("ar-SA")} {cur}</span>
           </div>
           <div className="flex justify-between text-sm">
             <span className="flex items-center gap-1 text-green-600"><ArrowUpCircle size={14} /> إجمالي الدخل</span>
-            <span className="font-semibold text-green-600">{totalIn.toLocaleString("ar-SA")} ر.س</span>
+            <span className="font-semibold text-green-600">{totalIn.toLocaleString("ar-SA")} {cur}</span>
           </div>
           <div className="flex justify-between text-sm">
             <span className="flex items-center gap-1 text-red-500"><ArrowDownCircle size={14} /> إجمالي الصرف</span>
-            <span className="font-semibold text-red-500">{totalOut.toLocaleString("ar-SA")} ر.س</span>
+            <span className="font-semibold text-red-500">{totalOut.toLocaleString("ar-SA")} {cur}</span>
           </div>
         </div>
 
@@ -130,7 +132,7 @@ export default function WalletStatement({ open, onClose, currentBalance }) {
                 </div>
               </div>
               <span className={`font-bold text-sm ${tx.direction === "in" ? "text-green-600" : "text-red-500"}`}>
-                {tx.direction === "in" ? "+" : "-"}{tx.amount?.toLocaleString("ar-SA")}
+                {tx.direction === "in" ? "+" : "-"}{tx.amount?.toLocaleString("ar-SA")} {cur}
               </span>
             </div>
           ))}

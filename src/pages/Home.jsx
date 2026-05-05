@@ -7,6 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { getWallet, updateWalletBalance } from "@/utils/wallet";
+import { getCurrency } from "@/utils/currency";
 import WalletStatement from "@/components/WalletStatement";
 
 const today = () => new Date().toISOString().slice(0, 10);
@@ -22,6 +23,7 @@ export default function Home() {
   const [statementOpen, setStatementOpen] = useState(false);
   const [incomeForm, setIncomeForm] = useState({ amount: "", source: "", date: today(), notes: "" });
   const [saving, setSaving] = useState(false);
+  const { symbol: cur } = getCurrency();
 
   useEffect(() => {
     loadData();
@@ -90,8 +92,8 @@ export default function Home() {
         <div className="flex items-center justify-between">
           <div>
             <p className="text-white/80 text-sm font-medium flex items-center gap-1"><Wallet size={14} /> رصيدك المتوفر</p>
-            <p className="text-4xl font-bold mt-1">{(wallet?.balance || 0).toLocaleString("ar-SA")} <span className="text-xl">ر.س</span></p>
-            <p className="text-white/70 text-xs mt-1">نفقات الشهر: {totalMonth.toLocaleString("ar-SA")} ر.س</p>
+            <p className="text-4xl font-bold mt-1">{(wallet?.balance || 0).toLocaleString("ar-SA")} <span className="text-xl">{cur}</span></p>
+            <p className="text-white/70 text-xs mt-1">نفقات الشهر: {totalMonth.toLocaleString("ar-SA")} {cur}</p>
             <p className="text-white/60 text-[11px] mt-0.5">اضغط لعرض كشف الحساب 👆</p>
           </div>
           <button onClick={e => { e.stopPropagation(); setAddMoneyOpen(true); }} className="bg-white/20 hover:bg-white/30 transition-colors rounded-xl p-3">
@@ -108,7 +110,7 @@ export default function Home() {
             <span className="text-xs text-muted-foreground">مستحق لي</span>
           </div>
           <p className="text-xl font-bold text-blue-600">{owedToMe.toLocaleString("ar-SA")}</p>
-          <p className="text-xs text-muted-foreground">ر.س</p>
+          <p className="text-xs text-muted-foreground">{cur}</p>
         </div>
         <div className="bg-card rounded-xl p-4 border border-border shadow-sm">
           <div className="flex items-center gap-2 mb-2">
@@ -116,7 +118,7 @@ export default function Home() {
             <span className="text-xs text-muted-foreground">مستحق عليّ</span>
           </div>
           <p className="text-xl font-bold text-red-500">{iOwe.toLocaleString("ar-SA")}</p>
-          <p className="text-xs text-muted-foreground">ر.س</p>
+          <p className="text-xs text-muted-foreground">{cur}</p>
         </div>
       </div>
 
@@ -165,7 +167,7 @@ export default function Home() {
                     <p className="text-xs text-muted-foreground">{exp.date}</p>
                   </div>
                 </div>
-                <span className="font-semibold text-sm text-red-500">-{exp.amount?.toLocaleString("ar-SA")}</span>
+                <span className="font-semibold text-sm text-red-500">-{exp.amount?.toLocaleString("ar-SA")} {cur}</span>
               </div>
             ))}
           </div>

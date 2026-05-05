@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { ArrowRight, Plus, PlusCircle, MinusCircle, Trash2 } from "lucide-react";
 import { getWallet, updateWalletBalance } from "@/utils/wallet";
+import { getCurrency } from "@/utils/currency";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
@@ -18,6 +19,7 @@ export default function GoalDetail() {
   const [txType, setTxType] = useState("إضافة");
   const [form, setForm] = useState({ amount: "", date: today(), notes: "" });
   const [loading, setLoading] = useState(false);
+  const { symbol: cur } = getCurrency();
 
   useEffect(() => {
     loadData();
@@ -106,11 +108,11 @@ export default function GoalDetail() {
         <div className="flex justify-between items-center mb-4">
           <div>
             <p className="text-xs text-muted-foreground">تم توفيره</p>
-            <p className="text-3xl font-bold text-primary">{(goal.current_amount || 0).toLocaleString("ar-SA")}<span className="text-base font-medium text-muted-foreground mr-1">ر.س</span></p>
+            <p className="text-3xl font-bold text-primary">{(goal.current_amount || 0).toLocaleString("ar-SA")}<span className="text-base font-medium text-muted-foreground mr-1">{cur}</span></p>
           </div>
           <div className="text-left">
             <p className="text-xs text-muted-foreground">الهدف</p>
-            <p className="text-xl font-bold">{goal.target_amount.toLocaleString("ar-SA")}<span className="text-sm font-medium text-muted-foreground mr-1">ر.س</span></p>
+            <p className="text-xl font-bold">{goal.target_amount.toLocaleString("ar-SA")}<span className="text-sm font-medium text-muted-foreground mr-1">{cur}</span></p>
           </div>
         </div>
 
@@ -122,7 +124,7 @@ export default function GoalDetail() {
         </div>
         <div className="flex justify-between">
           <span className="text-sm font-bold" style={{ color: goal.color || "#10b981" }}>{pct}%</span>
-          {!completed && <span className="text-sm text-muted-foreground">متبقي {remaining.toLocaleString("ar-SA")} ر.س</span>}
+          {!completed && <span className="text-sm text-muted-foreground">متبقي {remaining.toLocaleString("ar-SA")} {cur}</span>}
         </div>
 
         {goal.deadline && (
@@ -169,7 +171,7 @@ export default function GoalDetail() {
                 </div>
                 <div className="flex items-center gap-2">
                   <span className={`font-bold text-sm ${tx.type === "إضافة" ? "text-green-600" : "text-red-500"}`}>
-                    {tx.type === "إضافة" ? "+" : "-"}{tx.amount?.toLocaleString("ar-SA")} ر.س
+                    {tx.type === "إضافة" ? "+" : "-"}{tx.amount?.toLocaleString("ar-SA")} {cur}
                   </span>
                   <button onClick={() => handleDeleteTx(tx)} className="text-muted-foreground hover:text-red-500 transition-colors">
                     <Trash2 size={14} />

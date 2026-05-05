@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { Plus, Trash2, ChevronLeft, Phone } from "lucide-react";
+import { getCurrency } from "@/utils/currency";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
@@ -13,6 +14,7 @@ export default function Persons() {
   const [form, setForm] = useState({ name: "", phone: "" });
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { symbol: cur } = getCurrency();
 
   useEffect(() => {
     Promise.all([
@@ -86,8 +88,8 @@ export default function Persons() {
                     )}
                     {(owedToMe > 0 || iOwe > 0) && (
                       <div className="flex gap-2 mt-0.5">
-                        {owedToMe > 0 && <span className="text-xs text-blue-500 font-medium">له {owedToMe.toLocaleString("ar-SA")} ر.س</span>}
-                        {iOwe > 0 && <span className="text-xs text-red-500 font-medium">عليّ {iOwe.toLocaleString("ar-SA")} ر.س</span>}
+                        {owedToMe > 0 && <span className="text-xs text-blue-500 font-medium">له {owedToMe.toLocaleString("ar-SA")} {cur}</span>}
+                        {iOwe > 0 && <span className="text-xs text-red-500 font-medium">عليّ {iOwe.toLocaleString("ar-SA")} {cur}</span>}
                       </div>
                     )}
                   </div>

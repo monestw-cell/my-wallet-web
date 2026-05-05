@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { getWallet, updateWalletBalance } from "@/utils/wallet";
+import { getCurrency } from "@/utils/currency";
 
 const categories = ["طعام وشراب", "مواصلات", "تسوق", "فواتير", "صحة", "ترفيه", "تعليم", "إيجار", "أخرى"];
 const categoryIcons = {
@@ -29,6 +30,7 @@ export default function Expenses() {
   const [filterCat, setFilterCat] = useState("الكل");
   const [form, setForm] = useState({ amount: "", date: today(), category: "طعام وشراب", notes: "", person_name: "" });
   const [loading, setLoading] = useState(false);
+  const { symbol: cur } = getCurrency();
 
   useEffect(() => {
     loadData();
@@ -92,7 +94,7 @@ export default function Expenses() {
       <div className="pt-8 flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold">النفقات</h1>
-          <p className="text-sm text-muted-foreground">إجمالي: {total.toLocaleString("ar-SA")} ر.س</p>
+          <p className="text-sm text-muted-foreground">إجمالي: {total.toLocaleString("ar-SA")} {cur}</p>
         </div>
         <Button onClick={() => setOpen(true)} className="rounded-xl gap-2 bg-primary">
           <Plus size={18} /> إضافة
@@ -134,7 +136,7 @@ export default function Expenses() {
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <span className="font-bold text-red-500">{exp.amount?.toLocaleString("ar-SA")} ر.س</span>
+              <span className="font-bold text-red-500">{exp.amount?.toLocaleString("ar-SA")} {cur}</span>
               <button onClick={() => openEdit(exp)} className="text-muted-foreground hover:text-primary transition-colors">
                 <Pencil size={15} />
               </button>

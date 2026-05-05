@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { Plus, Trash2, Moon, Sun } from "lucide-react";
+import { CURRENCIES, getCurrency, setCurrencyCode } from "@/utils/currency";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useDarkMode } from "@/hooks/useDarkMode";
@@ -28,11 +29,17 @@ const DEFAULT_SOURCES = [
 
 export default function Settings() {
   const [dark, setDark] = useDarkMode();
+  const [selectedCurrency, setSelectedCurrency] = useState(() => getCurrency().code);
   const [categories, setCategories] = useState([]);
   const [sources, setSources] = useState([]);
   const [newCat, setNewCat] = useState({ name: "", icon: "📌" });
   const [newSrc, setNewSrc] = useState({ name: "", icon: "💵" });
   const [tab, setTab] = useState("categories");
+
+  const handleCurrencyChange = (code) => {
+    setCurrencyCode(code);
+    setSelectedCurrency(code);
+  };
 
   useEffect(() => {
     loadData();
@@ -91,6 +98,21 @@ export default function Settings() {
     <div className="p-4 space-y-4">
       <div className="pt-8">
         <h1 className="text-2xl font-bold">الإعدادات</h1>
+      </div>
+
+      {/* Currency Selector */}
+      <div className="bg-card rounded-xl border border-border p-4 shadow-sm">
+        <p className="font-medium text-sm mb-3">💱 العملة الافتراضية</p>
+        <div className="grid grid-cols-2 gap-2">
+          {CURRENCIES.map(c => (
+            <button key={c.code} onClick={() => handleCurrencyChange(c.code)}
+              className={`p-3 rounded-xl border text-sm font-medium transition-all text-right ${
+                selectedCurrency === c.code ? "border-primary bg-primary/10 text-primary" : "border-border text-foreground bg-background"
+              }`}>
+              <span className="font-bold">{c.symbol}</span> {c.name}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Dark Mode */}

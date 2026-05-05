@@ -3,6 +3,7 @@ import { base44 } from "@/api/base44Client";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from "recharts";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { format, startOfMonth, endOfMonth, subMonths } from "date-fns";
+import { getCurrency } from "@/utils/currency";
 
 const COLORS = ["#10b981", "#f59e0b", "#3b82f6", "#a855f7", "#ef4444", "#ec4899", "#06b6d4", "#84cc16", "#6b7280"];
 
@@ -14,6 +15,7 @@ const categoryIcons = {
 export default function Reports() {
   const [expenses, setExpenses] = useState([]);
   const [currentMonth, setCurrentMonth] = useState(new Date());
+  const { symbol: cur } = getCurrency();
 
   useEffect(() => {
     base44.entities.Expense.list("-date", 500).then(setExpenses);
@@ -73,7 +75,7 @@ export default function Reports() {
         <div className="bg-card rounded-xl border border-border p-4 shadow-sm">
           <p className="text-xs text-muted-foreground mb-1">إجمالي الشهر</p>
           <p className="text-xl font-bold text-foreground">{currentTotal.toLocaleString("ar-SA")}</p>
-          <p className="text-xs text-muted-foreground">ر.س</p>
+          <p className="text-xs text-muted-foreground">{cur}</p>
         </div>
         <div className={`rounded-xl border p-4 shadow-sm ${diff > 0 ? "bg-red-50 dark:bg-red-900/20 border-red-100" : diff < 0 ? "bg-green-50 dark:bg-green-900/20 border-green-100" : "bg-card border-border"}`}>
           <p className="text-xs text-muted-foreground mb-1">مقارنة بالشهر السابق</p>
@@ -95,7 +97,7 @@ export default function Reports() {
               <Pie data={chartData} cx="50%" cy="50%" outerRadius={85} dataKey="value" label={false}>
                 {chartData.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
               </Pie>
-              <Tooltip formatter={(v) => [`${v.toLocaleString("ar-SA")} ر.س`, ""]} />
+              <Tooltip formatter={(v) => [`${v.toLocaleString("ar-SA")} ${cur}`, ""]} />
             </PieChart>
           </ResponsiveContainer>
         </div>
@@ -121,7 +123,7 @@ export default function Reports() {
                     <span className="text-sm">{categoryIcons[item.name]} {item.name}</span>
                   </div>
                   <div className="text-left">
-                    <span className="text-sm font-semibold">{item.value.toLocaleString("ar-SA")} ر.س</span>
+                    <span className="text-sm font-semibold">{item.value.toLocaleString("ar-SA")} {cur}</span>
                     <span className="text-xs text-muted-foreground mr-1">({pct}%)</span>
                   </div>
                 </div>
@@ -130,7 +132,7 @@ export default function Reports() {
                 </div>
                 {prev > 0 && (
                   <p className="text-xs text-muted-foreground mt-0.5">
-                    الشهر السابق: {prev.toLocaleString("ar-SA")} ر.س
+                    الشهر السابق: {prev.toLocaleString("ar-SA")} {cur}
                   </p>
                 )}
               </div>

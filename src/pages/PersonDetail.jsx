@@ -4,6 +4,7 @@ import { base44 } from "@/api/base44Client";
 import { ArrowRight, CheckCircle, Circle, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { getWallet, updateWalletBalance } from "@/utils/wallet";
+import { getCurrency } from "@/utils/currency";
 
 export default function PersonDetail() {
   const { personId } = useParams();
@@ -12,6 +13,7 @@ export default function PersonDetail() {
   const [debts, setDebts] = useState([]);
   const [expenses, setExpenses] = useState([]);
   const [tab, setTab] = useState("debts");
+  const { symbol: cur } = getCurrency();
 
   useEffect(() => { loadData(); }, [personId]);
 
@@ -76,15 +78,15 @@ export default function PersonDetail() {
       <div className="grid grid-cols-3 gap-2">
         <div className="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-3 text-center">
           <p className="text-xs text-blue-600 dark:text-blue-400 mb-1">لي</p>
-          <p className="font-bold text-blue-700 dark:text-blue-300 text-sm">{owedToMe.toLocaleString("ar-SA")}</p>
+          <p className="font-bold text-blue-700 dark:text-blue-300 text-sm">{owedToMe.toLocaleString("ar-SA")} {cur}</p>
         </div>
         <div className="bg-red-50 dark:bg-red-900/20 rounded-xl p-3 text-center">
           <p className="text-xs text-red-600 dark:text-red-400 mb-1">عليّ</p>
-          <p className="font-bold text-red-600 dark:text-red-400 text-sm">{iOwe.toLocaleString("ar-SA")}</p>
+          <p className="font-bold text-red-600 dark:text-red-400 text-sm">{iOwe.toLocaleString("ar-SA")} {cur}</p>
         </div>
         <div className="bg-orange-50 dark:bg-orange-900/20 rounded-xl p-3 text-center">
           <p className="text-xs text-orange-600 dark:text-orange-400 mb-1">مشتريات</p>
-          <p className="font-bold text-orange-600 dark:text-orange-400 text-sm">{totalExpenses.toLocaleString("ar-SA")}</p>
+          <p className="font-bold text-orange-600 dark:text-orange-400 text-sm">{totalExpenses.toLocaleString("ar-SA")} {cur}</p>
         </div>
       </div>
 
@@ -117,7 +119,7 @@ export default function PersonDetail() {
                 </div>
                 <div className="flex items-center gap-2">
                   <span className={`font-bold text-sm ${debt.type === "لي" ? "text-blue-600" : "text-red-500"}`}>
-                    {debt.amount?.toLocaleString("ar-SA")} ر.س
+                    {debt.amount?.toLocaleString("ar-SA")} {cur}
                   </span>
                   <button onClick={() => toggleSettle(debt)} className="text-muted-foreground hover:text-primary transition-colors">
                     {debt.is_settled ? <CheckCircle size={18} className="text-primary" /> : <Circle size={18} />}
@@ -143,7 +145,7 @@ export default function PersonDetail() {
                 <p className="font-medium text-sm">{exp.category}</p>
                 <p className="text-xs text-muted-foreground">{exp.date}{exp.notes ? ` · ${exp.notes}` : ""}</p>
               </div>
-              <span className="font-bold text-sm text-red-500">{exp.amount?.toLocaleString("ar-SA")} ر.س</span>
+              <span className="font-bold text-sm text-red-500">{exp.amount?.toLocaleString("ar-SA")} {cur}</span>
             </div>
           ))}
         </div>

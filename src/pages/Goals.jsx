@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { Plus, Trash2, PlusCircle, MinusCircle } from "lucide-react";
+import { getCurrency } from "@/utils/currency";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
@@ -15,6 +16,7 @@ export default function Goals() {
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState({ title: "", target_amount: "", current_amount: "", deadline: "", icon: "🎯", color: "#10b981" });
   const [loading, setLoading] = useState(false);
+  const { symbol: cur } = getCurrency();
 
   useEffect(() => { base44.entities.Goal.list("-created_date", 50).then(setGoals); }, []);
 
@@ -82,8 +84,8 @@ export default function Goals() {
 
                 <div className="mb-3">
                   <div className="flex justify-between text-sm mb-1.5">
-                    <span className="font-medium">{(goal.current_amount || 0).toLocaleString("ar-SA")} ر.س</span>
-                    <span className="text-muted-foreground">{goal.target_amount.toLocaleString("ar-SA")} ر.س</span>
+                    <span className="font-medium">{(goal.current_amount || 0).toLocaleString("ar-SA")} {cur}</span>
+                    <span className="text-muted-foreground">{goal.target_amount.toLocaleString("ar-SA")} {cur}</span>
                   </div>
                   <div className="h-3 bg-secondary rounded-full overflow-hidden">
                     <div className="h-full rounded-full transition-all duration-500"
@@ -91,7 +93,7 @@ export default function Goals() {
                   </div>
                   <div className="flex justify-between mt-1">
                     <span className="text-xs font-bold" style={{ color: goal.color }}>{pct}%</span>
-                    {!completed && <span className="text-xs text-muted-foreground">متبقي {remaining.toLocaleString("ar-SA")} ر.س</span>}
+                    {!completed && <span className="text-xs text-muted-foreground">متبقي {remaining.toLocaleString("ar-SA")} {cur}</span>}
                   </div>
                 </div>
 

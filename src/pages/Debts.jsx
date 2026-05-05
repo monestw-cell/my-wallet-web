@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { getWallet, updateWalletBalance } from "@/utils/wallet";
+import { getCurrency } from "@/utils/currency";
 import { base44 } from "@/api/base44Client";
 import { Plus, Trash2, CheckCircle, Circle, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -18,6 +19,7 @@ export default function Debts() {
   const [dateTo, setDateTo] = useState("");
   const [form, setForm] = useState({ person_name: "", amount: "", type: "لي", date: today(), description: "" });
   const [loading, setLoading] = useState(false);
+  const { symbol: cur } = getCurrency();
 
   useEffect(() => { loadData(); }, []);
 
@@ -105,12 +107,12 @@ export default function Debts() {
         <div className="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-3 border border-blue-100 dark:border-blue-800">
           <p className="text-xs text-blue-600 font-medium mb-1">مستحق لي</p>
           <p className="text-xl font-bold text-blue-700">{owedToMe.toLocaleString("ar-SA")}</p>
-          <p className="text-xs text-blue-500">ر.س</p>
+          <p className="text-xs text-blue-500">{cur}</p>
         </div>
         <div className="bg-red-50 dark:bg-red-900/20 rounded-xl p-3 border border-red-100 dark:border-red-800">
           <p className="text-xs text-red-600 font-medium mb-1">مستحق عليّ</p>
           <p className="text-xl font-bold text-red-600">{iOwe.toLocaleString("ar-SA")}</p>
-          <p className="text-xs text-red-500">ر.س</p>
+          <p className="text-xs text-red-500">{cur}</p>
         </div>
       </div>
 
@@ -159,7 +161,7 @@ export default function Debts() {
               </div>
               <div className="flex flex-col items-end gap-2">
                 <span className={`font-bold text-sm ${debt.type === "لي" ? "text-blue-600" : "text-red-500"}`}>
-                  {debt.amount?.toLocaleString("ar-SA")} ر.س
+                  {debt.amount?.toLocaleString("ar-SA")} {cur}
                 </span>
                 <div className="flex gap-2">
                   <button onClick={() => openEdit(debt)} className="text-muted-foreground hover:text-primary transition-colors">
