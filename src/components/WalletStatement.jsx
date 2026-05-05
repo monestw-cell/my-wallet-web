@@ -11,7 +11,10 @@ export default function WalletStatement({ open, onClose, currentBalance }) {
   const [filter, setFilter] = useState("الكل");
 
   useEffect(() => {
-    if (!open) return;
+    if (!open) {
+      setTransactions([]);
+      return;
+    }
     setLoading(true);
     Promise.all([
       base44.entities.Income.list("-date", 200),

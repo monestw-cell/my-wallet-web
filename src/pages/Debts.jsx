@@ -102,12 +102,12 @@ export default function Debts() {
 
       {/* Balance Summary */}
       <div className="grid grid-cols-2 gap-3">
-        <div className="bg-blue-50 rounded-xl p-3 border border-blue-100">
+        <div className="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-3 border border-blue-100 dark:border-blue-800">
           <p className="text-xs text-blue-600 font-medium mb-1">مستحق لي</p>
           <p className="text-xl font-bold text-blue-700">{owedToMe.toLocaleString("ar-SA")}</p>
           <p className="text-xs text-blue-500">ر.س</p>
         </div>
-        <div className="bg-red-50 rounded-xl p-3 border border-red-100">
+        <div className="bg-red-50 dark:bg-red-900/20 rounded-xl p-3 border border-red-100 dark:border-red-800">
           <p className="text-xs text-red-600 font-medium mb-1">مستحق عليّ</p>
           <p className="text-xl font-bold text-red-600">{iOwe.toLocaleString("ar-SA")}</p>
           <p className="text-xs text-red-500">ر.س</p>
@@ -118,7 +118,7 @@ export default function Debts() {
       <div className="flex gap-2 flex-wrap">
         {["الكل", "لي", "عليّ"].map(f => (
           <button key={f} onClick={() => setFilter(f)}
-            className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${filter === f ? "bg-primary text-white" : "bg-white border border-border"}`}>
+            className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${filter === f ? "bg-primary text-white" : "bg-secondary border border-border text-foreground"}`}>
             {f}
           </button>
         ))}
