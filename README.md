@@ -1,48 +1,51 @@
-# My Wallet Web (محفظتي) 💰📊
+# My Wallet Web 📊💰
 
-تطبيق ويب مالي متكامل لإدارة المصاريف الشخصية، تتبع الديون، وتخطيط الأهداف المالية.
+[![React](https://img.shields.io/badge/React-18.x-61DAFB?logo=react&logoColor=black)](https://reactjs.org/)
+[![Vite](https://img.shields.io/badge/Build-Vite-646CFF?logo=vite&logoColor=white)](https://vitejs.dev/)
+[![Tailwind CSS](https://img.shields.io/badge/Styling-Tailwind%20CSS-06B6D4?logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
----
-
-## 🌟 نبذة عن المشروع (Overview)
-
-**My Wallet Web** هو تطبيق مالي شخصي صُمم لمساعدة الأفراد على التحكم الكامل في نفقاتهم ومدخراتهم. يوفر لوحة تحكم تفاعلية وتقارير رسومية بيانية لتصنيف المصاريف اليومية، متابعة مصادر الدخل، وإدارة الديون والمستحقات بدقة.
-
----
-
-## ✨ المميزات الرئيسية (Key Features)
-
-- **تتبع المصاريف والدخل:** تسجيل فوري للمعاملات وتصنيفها في فئات قابلة للتخصيص.
-- **إدارة الديون والالتزامات (Debt Tracking):** سجل واضح للديون الدائنة والمدينة مع مواعيد الاستحقاق.
-- **تحديد ومتابعة الأهداف المالية (Financial Goals):** إنشاء أهداف ادخارية ومراقبة نسبة الإنجاز نحو الهدف.
-- **لوحة تحكم وتحليلات بيانية:** رسوم بيانية تفاعلية تلخص التوزيع المالي الشهري والسنوي.
-- **تصميم متجاوب وحديث:** تجربة مستخدم سلسة متوافقة مع شاشات الهواتف والحواسيب (Responsive UI).
+A modern, responsive web application for managing personal finances, tracking monthly budgets, and analyzing spending behavior with dynamic charts.
 
 ---
 
-## 🛠️ التقنيات المستخدمة (Tech Stack)
+## ✨ Features
 
-- **Frontend:** React, Tailwind CSS, Radix UI / Lucide Icons
-- **Build Tool:** Vite
-- **Architecture:** Client-side SPA with structured state management
+- **📊 Comprehensive Financial Dashboard:** High-level overview of income vs. expenses, net savings, and category distribution.
+- **🏷️ Customizable Categories:** Organize transactions into custom-tailored categories with custom icons and tags.
+- **💳 Debt & Loan Management:** Keep track of who owes you and what you owe with status badges and settlement logs.
+- **📱 Fully Responsive SPA:** Optimized for desktops, tablets, and mobile web browsers with smooth animations.
+- **⚡ Blazing Fast Performance:** Powered by Vite and Tailwind CSS for instant load times.
 
 ---
 
-## 🚀 التثبيت والتشغيل (Installation & Setup)
+## 🛠️ Tech Stack
+
+- **Framework:** React 18 (SPA)
+- **Bundler:** Vite
+- **Styling:** Tailwind CSS + Radix UI primitives + Lucide Icons
+- **State Management:** React Context API & Custom Hooks
+
+---
+
+## 🚀 Quickstart
 
 ```bash
-# استنساخ المشروع
+# 1. Clone the repository
 git clone https://github.com/monestw-cell/my-wallet-web.git
 cd my-wallet-web
 
-# تثبيت الحزم والتبعيات
+# 2. Install dependencies
 npm install
 
-# تشغيل خادم التطوير
+# 3. Start development server
 npm run dev
+
+# 4. Build for production
+npm run build
 ```
 
 ---
 
-## 📄 الترخيص (License)
-هذا المشروع مرخص تحت رخصة [MIT](LICENSE).
+## 📄 License
+Distributed under the [MIT License](LICENSE).
