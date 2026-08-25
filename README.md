@@ -1,39 +1,48 @@
-**Welcome to your Base44 project** 
+# My Wallet Web (محفظتي) 💰📊
 
-**About**
+تطبيق ويب مالي متكامل لإدارة المصاريف الشخصية، تتبع الديون، وتخطيط الأهداف المالية.
 
-View and Edit  your app on [Base44.com](http://Base44.com) 
+---
 
-This project contains everything you need to run your app locally.
+## 🌟 نبذة عن المشروع (Overview)
 
-**Edit the code in your local development environment**
+**My Wallet Web** هو تطبيق مالي شخصي صُمم لمساعدة الأفراد على التحكم الكامل في نفقاتهم ومدخراتهم. يوفر لوحة تحكم تفاعلية وتقارير رسومية بيانية لتصنيف المصاريف اليومية، متابعة مصادر الدخل، وإدارة الديون والمستحقات بدقة.
 
-Any change pushed to the repo will also be reflected in the Base44 Builder.
+---
 
-**Prerequisites:** 
+## ✨ المميزات الرئيسية (Key Features)
 
-1. Clone the repository using the project's Git URL 
-2. Navigate to the project directory
-3. Install dependencies: `npm install`
-4. Create an `.env.local` file and set the right environment variables
+- **تتبع المصاريف والدخل:** تسجيل فوري للمعاملات وتصنيفها في فئات قابلة للتخصيص.
+- **إدارة الديون والالتزامات (Debt Tracking):** سجل واضح للديون الدائنة والمدينة مع مواعيد الاستحقاق.
+- **تحديد ومتابعة الأهداف المالية (Financial Goals):** إنشاء أهداف ادخارية ومراقبة نسبة الإنجاز نحو الهدف.
+- **لوحة تحكم وتحليلات بيانية:** رسوم بيانية تفاعلية تلخص التوزيع المالي الشهري والسنوي.
+- **تصميم متجاوب وحديث:** تجربة مستخدم سلسة متوافقة مع شاشات الهواتف والحواسيب (Responsive UI).
 
+---
+
+## 🛠️ التقنيات المستخدمة (Tech Stack)
+
+- **Frontend:** React, Tailwind CSS, Radix UI / Lucide Icons
+- **Build Tool:** Vite
+- **Architecture:** Client-side SPA with structured state management
+
+---
+
+## 🚀 التثبيت والتشغيل (Installation & Setup)
+
+```bash
+# استنساخ المشروع
+git clone https://github.com/monestw-cell/my-wallet-web.git
+cd my-wallet-web
+
+# تثبيت الحزم والتبعيات
+npm install
+
+# تشغيل خادم التطوير
+npm run dev
 ```
-VITE_BASE44_APP_ID=your_app_id
-VITE_BASE44_APP_BASE_URL=your_backend_url
 
-e.g.
-VITE_BASE44_APP_ID=cbef744a8545c389ef439ea6
-VITE_BASE44_APP_BASE_URL=https://my-to-do-list-81bfaad7.base44.app
-```
+---
 
-Run the app: `npm run dev`
-
-**Publish your changes**
-
-Open [Base44.com](http://Base44.com) and click on Publish.
-
-**Docs & Support**
-
-Documentation: [https://docs.base44.com/Integrations/Using-GitHub](https://docs.base44.com/Integrations/Using-GitHub)
-
-Support: [https://app.base44.com/support](https://app.base44.com/support)
+## 📄 الترخيص (License)
+هذا المشروع مرخص تحت رخصة [MIT](LICENSE).
